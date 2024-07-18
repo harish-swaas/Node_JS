@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Information Form</title>
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      padding: 20px;
+    }
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input[type="text"], input[type="email"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #ff8800;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #d77b11;
+    }
+
+    select#countryCode {
+      width: 100px;  
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    select#countryCode option {
+      background-color:#4CAF50;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Student Information Form</h1>
+
+  <form id="studentForm">
+    <label for="rollNumber">Enter Student Roll Number (format: SS101):</label><br>
+    <input type="text" id="rollNumber" name="rollNumber" pattern="[A-Za-z]{2}\d{3}" required><br><br>
+    
+    <label for="name">Enter Student Name:</label><br>
+    <input type="text" id="name" name="name" pattern="[A-Za-z\s]+" required><br><br>
+    
+    <label for="department">Enter Student Department:</label><br>
+    <input type="text" id="department" name="department" pattern="[A-Za-z\s]+" required><br><br>
+    
+    <label for="dob">Enter Student Date of Birth (DD-MM-YYYY):</label><br>
+    <input type="text" id="dob" name="dob" pattern="(^\d{2}-\d{2}-\d{4}$)" required><br><br>
+    
+    <label for="mobileNumber">Enter Student Mobile Number:</label><br>
+    <div style="display: flex;">
+      <select id="countryCode" name="countryCode" style="flex: 1;">
+        <option value="+1">+1 (USA)</option>
+        <option value="+44">+44 (UK)</option>
+        <option value="+91">+91 (India)</option>
+         
+      </select>
+      <input type="text" id="mobileNumber" name="mobileNumber" pattern="\d{10}" style="flex: 3;" required>
+    </div>
+    <small>Mobile number must be 10 digits without country code.</small><br><br>
+    
+    <label for="email">Enter Student Email Address (must end with @yourdomain):</label><br>
+    <input type="email" id="email" name="email" pattern="[a-zA-Z0-9._%+-]+@gmail.com" required><br><br>
+    
+    <button type="submit">Submit</button>
+  </form>
+
+  <div id="studentInfo">
+   
+  </div>
+
+  <script>
+    
+    document.getElementById('studentForm').addEventListener('submit', function(event) {
+      event.preventDefault();  
+      
+      const rollNumber = document.getElementById('rollNumber').value.trim();
+      const name = document.getElementById('name').value.trim();
+      const department = document.getElementById('department').value.trim();
+      const dobInput = document.getElementById('dob').value.trim();
+      const countryCode = document.getElementById('countryCode').value.trim();
+      const mobileNumber = countryCode + document.getElementById('mobileNumber').value.trim();
+      const email = document.getElementById('email').value.trim();
+      
+     
+      if (!validateRollNumber(rollNumber)) {
+        alert('Invalid roll number format. Please enter again.');
+        return;
+      }
+      
+      if (!validateName(name)) {
+        alert('Invalid name format. Please enter again.');
+        return;
+      }
+      
+      if (!validateDepartment(department)) {
+        alert('Invalid department format. Please enter again.');
+        return;
+      }
+      
+      if (!isValidDateFormat(dobInput)) {
+        alert('Invalid date format. Please enter again.');
+        return;
+      }
+      
+      const dob = parseDate(dobInput);
+      const age = calculateAge(dob);
+      
+      if (!validateMobileNumber(mobileNumber)) {
+        alert('Invalid mobile number format. Please enter again.');
+        return;
+      }
+      
+      if (!validateEmail(email)) {
+        alert('Invalid email format. Please enter again.');
+        return;
+      }
+      
+      displayStudentInfo(rollNumber, name, department, dob, age, mobileNumber, email);
+    });
+
+    function displayStudentInfo(rollNumber, name, department, dob, age, mobileNumber, email) {
+      const infoDiv = document.getElementById('studentInfo');
+      infoDiv.innerHTML = `
+        <h2>Student Information:</h2>
+        <p><strong>Roll Number:</strong> ${rollNumber}</p>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Department:</strong> ${department}</p>
+        <p><strong>Date of Birth:</strong> ${dob.toLocaleDateString('en-IN')}</p>
+        <p><strong>Age:</strong> ${age}</p>
+        <p><strong>Mobile Number:</strong> ${mobileNumber}</p>
+        <p><strong>Email:</strong> ${email}</p>
+      `;
+    }
+
+    function validateRollNumber(rollNumber) {
+      return /^[A-Za-z]{2}\d{3}$/.test(rollNumber);
+    }
+
+    function validateName(name) {
+      return /^[A-Za-z\s]+$/.test(name);
+    }
+
+    function validateDepartment(department) {
+      return /^[A-Za-z\s]+$/.test(department);
+    }
+
+    function isValidDateFormat(dateString) {
+      return /^(?:\d{4}-\d{2}-\d{2})|(?:\d{2}-\d{2}-\d{4})$/.test(dateString);
+    }
+
+    function parseDate(dateString) {
+      let parts = dateString.split(/[-\/]/);
+      if (parts[2].length === 4) {
+        return new Date(parts[2], parts[1] - 1, parts[0]);
+      } else {
+        return new Date(parts[2], parts[0] - 1, parts[1]);
+      }
+    }
+
+    function calculateAge(dob) {
+      const today = new Date();
+      const dobYear = dob.getFullYear();
+      const dobMonth = dob.getMonth();
+      const dobDay = dob.getDate();
+      
+      let age = today.getFullYear() - dobYear;
+      if (today.getMonth() < dobMonth || (today.getMonth() === dobMonth && today.getDate() < dobDay)) {
+        age--;
+      }
+      return age;
+    }
+
+    function validateMobileNumber(mobileNumber) {
+      return /^\+\d{1,3}\d{10}$/.test(mobileNumber);  
+    }
+
+    function validateEmail(email) {
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+}
+
+  </script>
+</body>
+</html>
